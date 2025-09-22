@@ -44,8 +44,7 @@ CSRF_TRUSTED_ORIGINS = ['https://django-rqkv.onrender.com']
 
 
 INTERNAL_IPS = (
-    '127.0.0.1',
-    'localhost:8000'
+    '127.0.0.1'
 )
 
 
@@ -169,4 +168,4 @@ else:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-GDAL_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgdal.so.34'
+GDAL_LIBRARY_PATH = '/usr/lib/x86_64-linux-gnu/libgdal.so.3.6'
