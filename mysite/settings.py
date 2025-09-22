@@ -36,7 +36,9 @@ else:
     DEBUG = False
 
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django-rqkv.onrender.com']
+
+CSRF_TRUSTED_ORIGINS = ['https://django-rqkv.onrender.com']
 
 INTERNAL_IPS = (
     '127.0.0.1',
