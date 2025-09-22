@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+<meta charset="utf-8" name="viewport" 
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+    <title>Bienvenido</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'icon/mexico.ico' %}">
+    
+    <style>
+        body {
+            background: url('{% static "img/carto.png" %}') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+        }
+        .menu {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(6px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            z-index: 100;
+        }
+        .menu-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+        }
+        .menu-logo {
+            height: 40px;
+        }
+        .menu-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 24px;
+            font-size: 18px;
+            transition: color 0.2s;
+            text-shadow: 1px 1px 8px rgba(0,0,0,0.35);
+        }
+        .menu-links a:hover {
+            color: #ffd600;
+        }
+        .container {
+            max-width: 600px;
+            margin: 120px auto 80px auto;
+            background: rgba(255, 255, 255, 0.31);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 40px;
+            text-align: center;
+        }
+        h1 {
+            color: #2321a5ff;
+            margin-bottom: 24px;
+            text-shadow: 1px 2px 8px rgba(0,0,0,0.28);
+        }
+        p {
+            font-size: 1.1em;
+            color: #23204eff;
+            margin-bottom: 32px;
+            text-shadow: 1px 1px 6px rgba(0,0,0,0.18);
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            font-size: 18px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn:hover { background-color: #1565c0; }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <div class="menu-content">
+            <img src="{% static 'img/mexico.jpg' %}" alt="Mexico" class="menu-logo">
+            <div class="menu-links">
+                <a href="/polls/">Encuestas</a>
+                <a href="/leaflet/">Leaflet</a>
+                <a href="/admin/">Administrador</a>
+                <span class="text-lg font-bold">Django
+                    {%if debug %}
+                    <span class="text-yellow-400 font-light italic ml-1">DEV</span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <h1>¡Bienvenido al mundo en Django!</h1>
+        <p>Selecciona una opción para continuar:</p>
+    </div>
+</body>
+</html>

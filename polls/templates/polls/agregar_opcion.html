@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+    <title>Agregar Opciones</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'icon/mexico.ico' %}">
+    <style>
+        body {
+            background: url('{% static "img/carto.png" %}') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+        }
+        .menu {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(6px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            z-index: 100;
+        }
+        .menu-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+        }
+        .menu-logo {
+            height: 40px;
+        }
+        .menu-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 24px;
+            font-size: 18px;
+            transition: color 0.2s;
+            text-shadow: 1px 1px 8px rgba(0,0,0,0.35);
+        }
+        .menu-links a:hover {
+            color: #ffd600;
+        }
+        .container {
+            max-width: 600px;
+            margin: 120px auto 80px auto;
+            background: rgba(255, 255, 255, 0.31);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 40px;
+            text-align: center;
+        }
+        h1 {
+            color: #2321a5ff;
+            margin-bottom: 24px;
+            text-shadow: 1px 2px 8px rgba(0,0,0,0.28);
+        }
+        p {
+            font-size: 1.1em;
+            color: #23204eff;
+            margin-bottom: 32px;
+            text-shadow: 1px 1px 6px rgba(0,0,0,0.18);
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            margin: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #1976d2 0%, #00bcd4 100%);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            box-shadow: 0 2px 8px rgba(25,118,210,0.12);
+            text-decoration: none;
+            transition: background 0.2s, transform 0.2s;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            outline: none;
+        }
+        .btn:hover, .btn:focus {
+            background: linear-gradient(90deg, #00bcd4 0%, #1976d2 100%);
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 4px 16px rgba(25,118,210,0.18);
+        }
+        .btn-success {
+            background: linear-gradient(90deg, #43ea7b 0%, #4caf50 100%);
+            color: #fff;
+        }
+        .btn-success:hover, .btn-success:focus {
+            background: linear-gradient(90deg, #4caf50 0%, #43ea7b 100%);
+            transform: translateY(-2px) scale(1.04);
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <div class="menu-content">
+            <img src="{% static 'img/mexico.jpg' %}" alt="Mexico" class="menu-logo">
+            <div class="menu-links">
+                <a href="/polls/">Encuestas</a>
+                <a href="/leaflet/">Leaflet</a>
+                <a href="/admin/">Administrador</a>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <h1>Agregar opciones para la pregunta:</h1>
+        <h2>"{{ pregunta.texto_pregunta }}"</h2>
+        <form action="{% url 'polls:agregar_opcion' pregunta.id %}" method="post">
+            {% csrf_token %}
+            {{ formulario.as_p }}
+            <button type="submit" class="btn">Agregar Opción</button>
+        </form>
+        {% if opciones %}
+            <h2>Opciones agregadas:</h2>
+            <ul style="list-style:none;padding:0;">
+                {% for opcion in opciones %}
+                    <li style="background:#e3eafc;margin-bottom:8px;border-radius:6px;padding:10px;">{{ opcion.texto_opcion }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <a href="{% url 'polls:encuestas' %}" class="btn btn-success">¡Listo, terminar!</a>
+        <a href="/polls/" class="btn">Regresar a encuestas</a>
+        <a href="/" class="btn">Regresar al inicio</a>
+    </div>
+</body>
+</html>
