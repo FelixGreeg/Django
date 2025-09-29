@@ -8,6 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}">
     <script src="{% static 'leaflet/leaflet.js' %}"></script>
+    <!--<script src="https://unpkg.com/pmtiles@3.0.6/dist/pmtiles.js"></script>-->
+    <script src="https://unpkg.com/protomaps-leaflet@4.0.1/dist/protomaps-leaflet.js"></script>
     <style>
         body {
             background: url('{% static "img/carto.png" %}') no-repeat center center fixed;
@@ -101,7 +103,7 @@
         }
         .layer-control {
             position: absolute;
-            top: 70px; /* Ajusta según el alto real del menú */
+            top: 70px;
             right: 18px;
             z-index: 1000;
             background: rgba(255,255,255,0.85);
@@ -109,8 +111,8 @@
             box-shadow: 0 2px 8px rgba(25,118,210,0.08);
             padding: 6px 8px;
             display: flex;
-            flex-direction: column; /* <-- vertical */
-            gap: 8px; /* separación vertical */
+            flex-direction: column;
+            gap: 8px;
         }
         .layer-btn {
             background: none;
@@ -153,14 +155,20 @@
         <h1>Mi Mapa Interactivo</h1>
         <div id="mapa">
             <div id="customLayerControl" class="layer-control">
-                <button class="layer-btn active" data-layer="calle" title="Calle">
+                <button class="layer-btn" data-layer="calle" title="Calle">
                     <img src="{% static 'icon/calle.png' %}" alt="Calle" class="layer-icon">
                 </button>
                 <button class="layer-btn" data-layer="satelite" title="Satelital">
                     <img src="{% static 'icon/satelite.png' %}" alt="Satelital" class="layer-icon">
                 </button>
-                <button class="layer-btn" id="btn-alcaldias" data-layer="geojson" title="Alcaldías">
+                <button class="layer-btn active" id="btn-alcaldias" data-layer="geojson" title="Alcaldías">
                     <img src="{% static 'icon/alcaldias.png' %}" alt="Alcaldías" class="layer-icon">
+                </button>
+                    <button class="layer-btn" id="btn-pmtiles" data-layer="pmtiles" title="CDMX PMTiles">
+                    <img src="{% static 'icon/pmtiles.png' %}" alt="PMTiles" class="layer-icon">
+                </button>
+                <button class="layer-btn" id="btn-cuauhtemoc" data-layer="cuauhtemoc" title="Cuauhtemoc">
+                    <img src="{% static 'icon/cuauhtemoc.png' %}" alt="Cuauhtemoc" class="layer-icon">
                 </button>
             </div>
         </div>
@@ -180,6 +188,52 @@
             maxZoom: 18
         });
 
+        // Capa PMTiles usando protomaps-leaflet
+
+        // 1. Definición de la URL del archivo PMTiles
+        const pmtilesUrl = "{% static 'geojson/cdmx.pmtiles' %}";
+        const cuauhtemocUrl = "{% static 'geojson/cuauhtemoc.pmtiles' %}";
+
+        // 2. Definir las reglas de estilo (Mínimo, para que se dibujen)
+        const cdmxEstilo = [{
+            // Nombre de la capa del archivo PMTiles
+            dataLayer: "cdmx_layer", 
+            symbolizer: new protomapsL.PolygonSymbolizer({
+                fill: "rgba(255, 0, 0, 0.0)",         // Color de relleno 
+                stroke: "#0f0e01ff", // Borde
+                width: 2
+            })
+        }];
+
+        const cuauhtemocEstilo = [{
+            // Nombre de la capa del archivo PMTiles
+            dataLayer: "cuauhtemoc", 
+            symbolizer: new protomapsL.PolygonSymbolizer({
+                fill: "rgba(255, 0, 0, 0.0)",         // Color de relleno 
+                stroke: "#bd1a8cff", // Borde
+                width: 2
+            })
+        }];
+
+        // 3. Creación de la capa usando protomapsL.leafletLayer
+        const cdmxPmtilesLayer = protomapsL.leafletLayer({
+            url: pmtilesUrl,
+            paintRules: cdmxEstilo, // Aplica estilos
+            attribution: '© CDMX PMTiles | protomaps-leaflet'
+        });
+        const cuauhtemocLayer = protomapsL.leafletLayer({
+            url: cuauhtemocUrl,
+            paintRules: cuauhtemocEstilo, // Aplica estilos
+            attribution: '© Cuauhtemoc PMTiles | protomaps-leaflet',
+            maxDataZoom: 14, // Limita el zoom máximo de los datos
+            minDataZoom: 18  // Limita el zoom mínimo de los datos
+        });
+
+        // Variables para controlar capas
+        var geojsonLayer = L.layerGroup(); 
+        var geojsonVisible = false;
+        var baseLayer = calle; // Por defecto
+        calle.addTo(mapa); // La capa base inicial
         var geojsonLayer;
 
         // Capa GeoJSON
@@ -223,25 +277,34 @@
 
         // Control de capas personalizado
         var baseLayer = calle; // Por defecto
-        calle.addTo(mapa);
-
-        var geojsonVisible = false;
-
+        var geojsonVisible = true; // GeoJSON visible por defecto
+                
+        // Control para capas base (Calle, Satelital y PMTiles)
         document.querySelectorAll('.layer-btn[data-layer="calle"], .layer-btn[data-layer="satelite"]').forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('.layer-btn[data-layer="calle"], .layer-btn[data-layer="satelite"]').forEach(b => b.classList.remove('active'));
+                // Remover active de todas las capas base
+                document.querySelectorAll('.layer-btn[data-layer="calle"], .layer-btn[data-layer="satelite"], .layer-btn[data-layer="pmtiles"], .layer-btn[data-layer="cuauhtemoc"]').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                // Cambia la capa base
+                
+                // Remover capa base actual (incluyendo PMTiles)
                 mapa.removeLayer(baseLayer);
+                if (cdmxPmtilesLayer && mapa.hasLayer(cdmxPmtilesLayer)) {
+                    mapa.removeLayer(cdmxPmtilesLayer);
+                }
+                if (cuauhtemocLayer && mapa.hasLayer(cuauhtemocLayer)) {
+                    mapa.removeLayer(cuauhtemocLayer);
+                }
+                // Agregar nueva capa base
                 baseLayer = (this.getAttribute('data-layer') === 'calle') ? calle : satelite;
                 baseLayer.addTo(mapa);
+                
                 // Si la capa de alcaldías está activa, la vuelve a agregar encima
                 if (geojsonVisible && geojsonLayer) {
                     geojsonLayer.addTo(mapa);
                 }
             });
         });
-
+        // Control para capa de Alcaldías
         document.getElementById('btn-alcaldias').addEventListener('click', function() {
             if (geojsonLayer) {
                 if (geojsonVisible) {
@@ -254,6 +317,47 @@
                 geojsonVisible = !geojsonVisible;
             }
         });
+        // Control para capa PMTiles
+        document.getElementById('btn-pmtiles').addEventListener('click', function() {
+            if (cdmxPmtilesLayer) {
+                // Alternar la clase 'active' del botón
+                this.classList.toggle('active');
+
+                // Lógica para añadir/remover la capa como una SUPERPOSICIÓN
+                if (mapa.hasLayer(cdmxPmtilesLayer)) {
+                    mapa.removeLayer(cdmxPmtilesLayer);
+                } else {
+                    cdmxPmtilesLayer.addTo(mapa);
+                }
+                
+            } else {
+                console.warn('La capa PMTiles no está disponible');
+                alert('La capa PMTiles no está disponible');
+            }
+        });
+        // Control para capa Cuauhtemoc
+        document.getElementById('btn-cuauhtemoc').addEventListener('click', function() {
+            if (cuauhtemocLayer) {
+                // Alternar la clase 'active' del botón
+                this.classList.toggle('active'); 
+                // Lógica para añadir/remover la capa como una SUPERPOSICIÓN
+                if (mapa.hasLayer(cuauhtemocLayer)) {
+                    mapa.removeLayer(cuauhtemocLayer);
+                } else {
+                    cuauhtemocLayer.addTo(mapa);
+                }
+            } else {
+                console.warn('La capa Cuauhtemoc no está disponible');
+                alert('La capa Cuauhtemoc no está disponible');
+            }
+        });
+
+
+
     </script>
+    
+    
+
+
 </body>
 </html>
